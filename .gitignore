@@ -3,6 +3,8 @@
 docs/*
 !docs/readme.md
 
+.vscode
+
 # Prerequisites
 *.d
 
