@@ -1,0 +1,3 @@
+[submodule "robotics-notebooks"]
+	path = robotics-notebooks
+	url = git@github.com:yosoufe/robotics-notebooks.git
