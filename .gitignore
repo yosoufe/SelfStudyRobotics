@@ -5,6 +5,9 @@ docs/*
 
 .vscode
 
+hardware/*
+!hardware/readme.md
+
 # Prerequisites
 *.d
 
