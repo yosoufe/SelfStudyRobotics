@@ -52,6 +52,7 @@ def parse_dataset():
         if line[0] == "FLASER":
             laser = parse_laser(line[1:], len(dataset.data))
             dataset.lasers.append(laser)
+            dataset.length_lasers.append(laser.XY.shape[1])
             dataset.data.append(laser)
         elif line[0] == "ODOM":
             odom = parse_odom(line[1:], len(dataset.data))

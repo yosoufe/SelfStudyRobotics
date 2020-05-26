@@ -35,16 +35,20 @@ class Laser(Message):
         self.odom_theta = float()
     
     def calculate_XY(self):
-        self.XY = np.zeros((2, self.num_readings), dtype=np.float)
+        points = []
         for idx in range(self.num_readings):
-            angle = radians(float(idx))
             ro = self.scan[idx]
-            self.XY[0, idx] = ro * cos(angle)
-            self.XY[1, idx] = ro * sin(angle)
-        
+            if ro > 80:
+                # invalid measurement
+                continue
+            angle = radians(float(idx))
+            p = np.array([[ro * cos(angle)], [ro * sin(angle)]], dtype=np.float)
+            points.append(p)
+        self.XY = np.concatenate(points, axis=1)
 
 class DataSet:
     def __init__(self):
         self.data = []
         self.odoms = []
         self.lasers = []
+        self.length_lasers = []
