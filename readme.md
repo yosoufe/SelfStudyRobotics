@@ -1,10 +1,27 @@
 # Self Study Robotics
 
-# Videos
-* Prof. Dr. Cyrill Stachniss:
-  * https://www.youtube.com/channel/UCi1TC2fLRvgBQNe-T4dp8Eg
-  * https://www.ipb.uni-bonn.de/teaching/
-  * https://openslam-org.github.io/
+# Online Courses:
+**Prof. Dr. Wolfram Burgard**:
+- Introduction to Mobile Robotics - SS 2020
+  - http://ais.informatik.uni-freiburg.de/teaching/ss20/robotics/
+
+**Dieter Fox**
+- CSE571: Probabilistic Robotics
+  - https://courses.cs.washington.edu/courses/cse571/
+
+**Prof. Dr. Cyrill Stachniss**
+- Mobile Sensing and Robotics I & II
+- Modern C++ for Computer Vision
+- ...
+
+All in:
+- https://www.ipb.uni-bonn.de/teaching/
+
+He has a very useful YouTube channel:
+- https://www.youtube.com/channel/UCi1TC2fLRvgBQNe-T4dp8Eg
+
+- https://openslam-org.github.io/
+
 
 # Datasets
 ## 2D
