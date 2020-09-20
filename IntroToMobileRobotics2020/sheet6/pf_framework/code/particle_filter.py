@@ -1,7 +1,9 @@
 import numpy as np
 import scipy.stats
+from scipy import stats
 import matplotlib.pyplot as plt
 from read_data import read_world, read_sensor_data
+import math
 
 #add random seed for generating comparable pseudo random numbers
 np.random.seed(123)
@@ -107,13 +109,25 @@ def sample_motion_model(odometry, particles):
 
     # generate new particle set after motion update
     new_particles = []
-    
-    '''your code here'''
-    '''***        ***'''
 
+    def noisy_control(control, alpha):
+        c0 = control[0] + np.random.normal(scale=alpha[0] *
+                                           abs(control[0]) + alpha[1]*abs(control[2]))
+        c1 = control[1] + np.random.normal(scale=alpha[0] *
+                                           abs(control[1]) + alpha[1]*abs(control[2]))
+        c2 = control[2] + np.random.normal(scale=alpha[2]*abs(control[2]) +
+                                           alpha[3]*(abs(control[0]) +
+                                                     abs(control[1])))
+        return np.array([c0, c1, c2])
 
-
-
+    for particle in particles:
+        new_particle = dict()
+        r1, r2, dt = noisy_control([delta_rot1, delta_rot2, delta_trans], noise)
+        x, y, theta = particle['x'], particle['y'], particle['theta']
+        new_particle['x'] = x + dt * math.cos(theta + r1)
+        new_particle['y'] = y + dt * math.sin(theta + r1)
+        new_particle['theta'] = theta + r1 + r2
+        new_particles.append(new_particle)
     return new_particles
 
 def eval_sensor_model(sensor_data, particles, landmarks):
@@ -131,12 +145,18 @@ def eval_sensor_model(sensor_data, particles, landmarks):
 
     weights = []
     
-    '''your code here'''
-    '''***        ***'''
+    pdf_obj = stats.norm(scale = sigma_r)
+    for particle in particles:
+        prob = 1.0
+        particle_position = np.array([particle['x'], particle['y']], dtype = np.float)
+        for landmark_id, measured_range in zip(sensor_data['id'], sensor_data['range']):
+            landmark_position = np.array(landmarks[landmark_id], dtype = np.float)
+            d_hat = np.linalg.norm(landmark_position - particle_position)
+            diff = abs(d_hat - measured_range)
+            prob = prob * pdf_obj.pdf(diff)
+        weights.append(prob)
 
-
-
-
+    weights = np.array(weights, dtype=np.float)
 
     #normalize weights
     normalizer = sum(weights)
@@ -150,22 +170,32 @@ def resample_particles(particles, weights):
 
     new_particles = []
 
-    '''your code here'''
-    '''***        ***'''
+    c = [weights[0]]
+    # generate cdf
+    for idx, w in enumerate(weights[1:]):
+        c.append(c[idx] + w)
+    
+    # init threshold
+    step_size = 1.0/len(particles)
+    th = np.random.uniform(low=1e-9, high=step_size, size=1)[0]
 
-
-
-
+    # draw samples
+    i = 0
+    for _ in range(len(particles)):
+        while(th > c[i]):
+            i = i + 1
+        new_particles.append(particles[i])
+        th = th + step_size
 
     return new_particles
 
 def main():
     # implementation of a particle filter for robot pose estimation
 
-    print "Reading landmark positions"
+    print("Reading landmark positions")
     landmarks = read_world("../data/world.dat")
 
-    print "Reading sensor data"
+    print("Reading sensor data")
     sensor_readings = read_sensor_data("../data/sensor_data.dat")
 
     #initialize the particles
@@ -173,7 +203,7 @@ def main():
     particles = initialize_particles(1000, map_limits)
 
     #run particle filter
-    for timestep in range(len(sensor_readings)/2):
+    for timestep in range(int(len(sensor_readings)/2)):
 
         #plot the current state
         plot_state(particles, landmarks, map_limits)
