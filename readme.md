@@ -32,5 +32,6 @@ He has a very useful YouTube channel:
 * https://www.a2d2.audi/a2d2/en.html
 
 # Books or chapters:
+* [Probabilistic Robotics](https://play.google.com/store/books/details?id=wjM3AgAAQBAJ)
 * [The Multivariate Gaussian](https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter13.pdf)
   * [Bayesian Modeling and Inference Course](https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/)
