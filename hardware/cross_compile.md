@@ -46,3 +46,7 @@ export WS=/home/yousof/robotics/jetson/cross_compile
 cd $WS/rootfs
 bash ch-mount.sh -m ./
 ```
+
+# Example
+
+I would like to cross compile the Intel RealSense Lib for Jetson nano

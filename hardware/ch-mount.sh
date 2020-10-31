@@ -4,10 +4,12 @@ sudo cp /usr/bin/qemu-aarch64-static usr/bin/
 
 function mnt() {
     echo "MOUNTING"
-    sudo mount -t proc /proc ${2}proc
-    sudo mount -t sysfs /sys ${2}sys    
-    sudo mount -o bind /dev ${2}dev
-    sudo mount -o bind /run ${2}run 
+    ROOT_DIR=${2}
+    mount --bind /proc $ROOT_DIR/proc  
+    mount --bind /tmp $ROOT_DIR/tmp  
+    mount --bind /sys $ROOT_DIR/sys  
+    mount --bind /dev $ROOT_DIR/dev  
+    mount --bind /dev/pts $ROOT_DIR/dev/pts  
     #sudo mount --bind / ${2}host
     #sudo mount -vt tmpfs shm ${2}dev/shm
     #sudo mount -t /dev/shm ${2}dev/shm
@@ -16,12 +18,12 @@ function mnt() {
 
 function umnt() {
     echo "UNMOUNTING"
-    sudo umount ${2}proc
-    sudo umount ${2}sys
-    #sudo umount ${2}dev/shm
-    sudo umount ${2}dev
-    sudo umount ${2}run
-    #sudo umount ${2}host
+    sudo umount ${2}/proc
+    sudo umount ${2}/sys
+    #sudo umount ${2}/dev/shm
+    sudo umount ${2}/dev
+    sudo umount ${2}/run
+    #sudo umount ${2}/host
 }
 
 
