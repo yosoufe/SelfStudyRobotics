@@ -73,6 +73,8 @@ mkdir build && cd build
 apt-get install \
     xorg-dev \
     libxinerama-dev \
+    python3 \ 
+    python3-dev \
     libpython3.6-dev
 
 cmake ../ \
@@ -84,8 +86,8 @@ cmake ../ \
     -DCMAKE_INSTALL_PREFIX=~/librealsense_binary \
     -DPYTHON_INSTALL_DIR=~/librealsense_binary/python \
     -DPYBIND11_INSTALL=ON \
-    -DPYBIND11_PYTHON_VERSION=3.6 \
-    -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc
+    -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
+    -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")
 
 # time to compile and install in the specified directory
 make -j20 install # now enjoy the computation power of host to compile for Jetson Nano.
@@ -93,6 +95,9 @@ make -j20 install # now enjoy the computation power of host to compile for Jetso
 
 `-DCMAKE_INSTALL_PREFIX=~/librealsense_binary` is to  make sure to change the install 
 directory to be able to copy it into jetson.
+
+`-DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")` to make sure 
+we are compiling for python3 rather than 2.
 
 If you need to compile for different python versions, you need to install them.
 
@@ -113,6 +118,18 @@ sudo ./rs-depth
 ```
 
 Yay :)
+
+To make it work without sudo run the followings on jetson while there
+is no `realsense` sensor is connected to your device.
+```bash
+# first disconnect all realsense sensors from jetson
+cd libs/
+chown -R `id -nu`:`id -ng` librealsense_binary
+sudo wget -O /etc/udev/rules.d/99-realsense-libusb.rules https://raw.githubusercontent.com/IntelRealSense/librealsense/master/config/99-realsense-libusb.rules
+sudo udevadm control --reload-rules && udevadm trigger
+```
+
+Now you should be able to run everything in jetson without `sudo`.
 
 ### Source:
 - https://github.com/jetsonhacks/installRealSenseSDK
