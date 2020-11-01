@@ -53,11 +53,20 @@ Intel Real Sense Camera Mount:
 You need to follow steps on `cross_compile.md` file first to prepare the environment for
 the cross compilation. After following those steps, you may follow the below.
 
-
 ```bash
 cd 
 git clone https://github.com/IntelRealSense/librealsense.git
 cd librealsense
+```
+
+We need to add the following line to the beginning of `CMake/install_config.cmake` 
+to make the `install` directory movable that all executables can be executed from everywhere
+in the filesystem.
+```cmake
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/../include")
+```
+
+```
 mkdir build && cd build
 
 # dependencies
@@ -86,6 +95,24 @@ make -j20 install # now enjoy the computation power of host to compile for Jetso
 directory to be able to copy it into jetson.
 
 If you need to compile for different python versions, you need to install them.
+
+Now lets test one of the example binaries. Open another terminal with your default user,
+(not in the simulated environment)
+```
+sudo su
+export WS=/home/yousof/robotics/jetson/cross_compile
+cd $WS/root/
+scp -r ./librealsense_binary <your_jetson_id>@<your_jetson_ip>:/home/yousof/libs/
+```
+
+now ssh to the jetson. and run one of the examples like
+```
+ssh <your_jetson_id>@<your_jetson_ip>
+cd libs/librealsense_binary/bin
+sudo ./rs-depth
+```
+
+Yay :)
 
 ### Source:
 - https://github.com/jetsonhacks/installRealSenseSDK
