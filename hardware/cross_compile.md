@@ -101,7 +101,7 @@ sudo su - root
 export WS=/home/yousof/robotics/jetson/cross_compile
 
 cd $WS/rootfs
-bash ch-mount.sh -m ./
+bash ch-mount.sh -m .
 ```
 
 # Example
