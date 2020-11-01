@@ -62,14 +62,14 @@ Partition table entries are not in disk order.
 
 the start of first partition is `28672`. We need `28672*512 = 14680064` number
 in the following command. Exit the previous command.
-```
+```bash
 mkdir temp_root
 sudo mount -o loop,offset=14680064 sd-blob-b01.img temp_root
 ```
 
 It is recommended to copy the content to some folder to avoid changing the image itself and
 also not being limited by 12GB of size in that root after `chroot`
-```
+```bash
 sudo mkdir -p $WS/rootfs
 sudo cp temp_root/*  $WS/rootfs -rapvf
 

@@ -66,7 +66,7 @@ in the filesystem.
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/../include")
 ```
 
-```
+```bash
 mkdir build && cd build
 
 # dependencies
@@ -103,7 +103,7 @@ If you need to compile for different python versions, you need to install them.
 
 Now lets test one of the example binaries. Open another terminal with your default user,
 (not in the simulated environment)
-```
+```bash
 sudo su
 export WS=/home/yousof/robotics/jetson/cross_compile
 cd $WS/root/
@@ -111,7 +111,7 @@ scp -r ./librealsense_binary <your_jetson_id>@<your_jetson_ip>:/home/yousof/libs
 ```
 
 now ssh to the jetson. and run one of the examples like
-```
+```bash
 ssh <your_jetson_id>@<your_jetson_ip>
 cd libs/librealsense_binary/bin
 sudo ./rs-depth
