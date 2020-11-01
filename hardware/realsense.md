@@ -49,7 +49,7 @@ Intel Real Sense Camera Mount:
 * Fusion 360: https://a360.co/36ryEeb
 
 
-# Cross Compile for Jetson Nane:
+# Cross Compile for Jetson Nano:
 You need to follow steps on `cross_compile.md` file first to prepare the environment for
 the cross compilation. After following those steps, you may follow the below.
 
