@@ -35,9 +35,9 @@ realsense-viewer # Provides 2D visualization of IMU and Tracking data. 3D visual
 
 ## DataSheets
 
-* (D400 Family)[https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Intel-RealSense-D400-Series-Datasheet.pdf]
+* [D400 Family](https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Intel-RealSense-D400-Series-Datasheet.pdf)
 
-* (Tracking Camera)https://www.intelrealsense.com/wp-content/uploads/2019/09/Intel_RealSense_Tracking_Camera_Datasheet_Rev004_release.pdf?_ga=2.175132068.786282.1590023533-1409498473.1589762811[https://www.intelrealsense.com/wp-content/uploads/2019/09/Intel_RealSense_Tracking_Camera_Datasheet_Rev004_release.pdf?_ga=2.175132068.786282.1590023533-1409498473.1589762811]
+* [Tracking Camera](https://www.intelrealsense.com/wp-content/uploads/2019/09/Intel_RealSense_Tracking_Camera_Datasheet_Rev004_release.pdf?_ga=2.175132068.786282.1590023533-1409498473.1589762811)
 
 ## CAD Files:
 Intel: https://dev.intelrealsense.com/docs/cad-files
