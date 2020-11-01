@@ -1,5 +1,3 @@
-# Hardware
-
 # Intel Real Sense
 * Getting Started: https://www.intelrealsense.com/get-started/
 
@@ -49,3 +47,45 @@ Nvidia Jetson: https://developer.nvidia.com/embedded/downloads
 Intel Real Sense Camera Mount: 
 * https://www.prusaprinters.org/prints/32199-intel-real-sense-mount-d435i-and-t265
 * Fusion 360: https://a360.co/36ryEeb
+
+
+# Cross Compile for Jetson Nane:
+You need to follow steps on `cross_compile.md` file first to prepare the environment for
+the cross compilation. After following those steps, you may follow the below.
+
+
+```bash
+cd 
+git clone https://github.com/IntelRealSense/librealsense.git
+cd librealsense
+mkdir build && cd build
+
+# dependencies
+apt-get install \
+    xorg-dev \
+    libxinerama-dev \
+    libpython3.6-dev
+
+cmake ../ \
+    -DBUILD_EXAMPLES=true \
+    -DFORCE_LIBUVC=true \
+    -DBUILD_WITH_CUDA=true \
+    -DCMAKE_BUILD_TYPE=release \
+    -DBUILD_PYTHON_BINDINGS=bool:true \
+    -DCMAKE_INSTALL_PREFIX=~/librealsense_binary \
+    -DPYTHON_INSTALL_DIR=~/librealsense_binary/python \
+    -DPYBIND11_INSTALL=ON \
+    -DPYBIND11_PYTHON_VERSION=3.6 \
+    -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc
+
+# time to compile and install in the specified directory
+make -j20 install # now enjoy the computation power of host to compile for Jetson Nano.
+```
+
+`-DCMAKE_INSTALL_PREFIX=~/librealsense_binary` is to  make sure to change the install 
+directory to be able to copy it into jetson.
+
+If you need to compile for different python versions, you need to install them.
+
+### Source:
+- https://github.com/jetsonhacks/installRealSenseSDK
