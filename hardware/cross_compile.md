@@ -107,4 +107,4 @@ bash ch-mount.sh -m ./
 # Example
 
 I would like to cross compile the Intel RealSense Lib for Jetson nano. 
-For that Please read the `realsense.md` file after doing the above preparation.
+For that Please read the [`realsense.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/realsense.md) file after doing the above preparation.

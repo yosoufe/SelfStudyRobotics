@@ -50,7 +50,7 @@ Intel Real Sense Camera Mount:
 
 
 # Cross Compile for Jetson Nano with Ubuntu 18.04 on Host
-You need to follow steps on `cross_compile.md` file first to prepare the environment for
+You need to follow steps on [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) file first to prepare the environment for
 the cross compilation. After following those steps, you may follow the below.
 
 ```bash
