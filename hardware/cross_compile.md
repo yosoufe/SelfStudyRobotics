@@ -7,7 +7,7 @@ Use it at your own risk if you want.
 * https://github.com/zhj-buffer/Cross-Compile-Jetson
 * https://www.plop.at/en/ploplinux/arm/crossbuildchroot.html
 
-# How to cross compile for Jetson Nanoe
+# How to cross compile for Jetson Nano
 
 Find the compressed `Jetson Nano Developer Kit SD Card Image`.
 Download and un-compress it.
