@@ -104,6 +104,9 @@ cd $WS/rootfs
 bash ch-mount.sh -m .
 ```
 
+You now can check with `uname -m` if everything worked which should
+show `aarch64` instead of `x86_64` in the host.
+
 # Example
 
 I would like to cross compile the Intel RealSense Lib for Jetson nano. 
