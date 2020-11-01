@@ -124,7 +124,7 @@ is no `realsense` sensor connected to your device.
 ```bash
 # first disconnect all realsense sensors from jetson
 cd libs/
-chown -R `id -nu`:`id -ng` librealsense_binary
+sudo chown -R `id -nu`:`id -ng` librealsense_binary
 sudo wget -O /etc/udev/rules.d/99-realsense-libusb.rules https://raw.githubusercontent.com/IntelRealSense/librealsense/master/config/99-realsense-libusb.rules
 sudo udevadm control --reload-rules && udevadm trigger
 ```
