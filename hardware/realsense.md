@@ -119,8 +119,8 @@ sudo ./rs-depth
 
 Yay :)
 
-To make it work without sudo run the followings on jetson while there
-is no `realsense` sensor is connected to your device.
+To make it work without sudo, run the followings on jetson while there
+is no `realsense` sensor connected to your device.
 ```bash
 # first disconnect all realsense sensors from jetson
 cd libs/
