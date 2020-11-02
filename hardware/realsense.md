@@ -63,6 +63,8 @@ in the filesystem.
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/../include")
 ```
 
+then we need to follow
+
 ```bash
 cd librealsense
 rm -rf build # to make sure you have an empty build directory
