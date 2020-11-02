@@ -104,9 +104,9 @@ we are compiling for python3 rather than 2.
 If you need to compile for different python versions, you need to install that specific python 
 version and then use for example `python3.7` at the last line of above cmake.
 
-## Cross Compile for Jetson Nano on Host
-If you want to cross compile for jetson nano on host ubuntu machine, first follow the steps in [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) and then follow the previous 
-section but on host and emulated ARM enviornment.
+## Cross Compile for Jetson Nano on Ubuntu Host
+If you want to cross compile for Jetson nano on host ubuntu machine, first follow the steps in [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) and then follow the previous 
+section but on host and emulated ARM environment.
 
 After that we need to test our cross compiled binary directory.
 
@@ -128,7 +128,7 @@ sudo ./rs-depth
 
 Yay :)
 
-### To tun everything without sudo
+### To run everything without sudo
 To make it work without sudo, run the followings on jetson while there
 is no `realsense` sensor connected to your device.
 ```bash
