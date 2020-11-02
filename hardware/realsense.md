@@ -88,7 +88,7 @@ cmake \
     -DPYTHON_INSTALL_DIR=~/librealsense_binary/python \
     -DPYBIND11_INSTALL=ON \
     -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
-    -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)") \ 
+    -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)") \
     ../
 
 # time to compile and install in the specified directory in `~/librealsense_binary`
