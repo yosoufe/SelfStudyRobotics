@@ -56,7 +56,7 @@ git clone https://github.com/IntelRealSense/librealsense.git
 cd librealsense
 ```
 
-We need to add the following line to the beginning of `CMake/install_config.cmake` 
+We need to add the following line to the beginning of `librealsense/CMake/install_config.cmake` 
 to make the `install` directory movable that all executables can be executed from everywhere
 in the filesystem.
 ```cmake
@@ -65,8 +65,8 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGI
 
 ```bash
 cd librealsense
-rm -rf build_jetson # to make sure you have an empty build directory
-mkdir build_jetson && cd build_jetson
+rm -rf build # to make sure you have an empty build directory
+mkdir build && cd build
 
 # dependencies
 apt-get install \
@@ -103,21 +103,18 @@ If you need to compile for different python versions, you need to install that s
 version and then use for example `python3.7` at the last line of above cmake.
 
 ## Cross Compile for Jetson Nano on Host
+If you want to cross compile for jetson nano on host ubuntu machine, first follow the steps in [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) and then follow the previous 
+section but on host and emulated ARM enviornment.
 
-
-If you want to cross compile for jetson nano on host powerfull ubuntu machine, first follow the steps in [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) and then run the following in 
-You need to follow steps on [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) file first to prepare the environment for
-the cross compilation. After following those steps, you may follow the below. If you do not want to 
-
-
+After that we need to test our cross compiled binary directory.
 
 Now lets test one of the example binaries. Open another terminal with your default user,
-(not in the simulated environment)
+(not in the emulated environment)
 ```bash
 sudo su
 export WS=/home/yousof/robotics/jetson/cross_compile
 cd $WS/root/
-scp -r ./librealsense_binary <your_jetson_id>@<your_jetson_ip>:/home/yousof/libs/
+sudo scp -r ./librealsense_binary <your_jetson_user>@<your_jetson_ip>:/home/<your-user-on-jetson>/libs/
 ```
 
 now ssh to the jetson. and run one of the examples like
@@ -129,6 +126,7 @@ sudo ./rs-depth
 
 Yay :)
 
+### To tun everything without sudo
 To make it work without sudo, run the followings on jetson while there
 is no `realsense` sensor connected to your device.
 ```bash
@@ -139,7 +137,7 @@ sudo wget -O /etc/udev/rules.d/99-realsense-libusb.rules https://raw.githubuserc
 sudo udevadm control --reload-rules && udevadm trigger
 ```
 
-Now you should be able to run everything in jetson without `sudo`.
+Now you should be able to run all realsense examples in jetson without `sudo`.
 
 ### Source:
 - https://github.com/jetsonhacks/installRealSenseSDK
