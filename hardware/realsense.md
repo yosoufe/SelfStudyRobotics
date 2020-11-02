@@ -49,10 +49,7 @@ Intel Real Sense Camera Mount:
 * Fusion 360: https://a360.co/36ryEeb
 
 
-# Cross Compile for Jetson Nano with Ubuntu 18.04 on Host
-You need to follow steps on [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) file first to prepare the environment for
-the cross compilation. After following those steps, you may follow the below.
-
+# Compile for Jetson Nano
 ```bash
 cd 
 git clone https://github.com/IntelRealSense/librealsense.git
@@ -67,7 +64,9 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGI
 ```
 
 ```bash
-mkdir build && cd build
+cd librealsense
+rm -rf build_jetson # to make sure you have an empty build directory
+mkdir build_jetson && cd build_jetson
 
 # dependencies
 apt-get install \
@@ -77,7 +76,7 @@ apt-get install \
     python3-dev \
     libpython3.6-dev
 
-cmake ../ \
+cmake \
     -DBUILD_EXAMPLES=true \
     -DFORCE_LIBUVC=true \
     -DBUILD_WITH_CUDA=true \
@@ -87,10 +86,11 @@ cmake ../ \
     -DPYTHON_INSTALL_DIR=~/librealsense_binary/python \
     -DPYBIND11_INSTALL=ON \
     -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
-    -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")
+    -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)") \ 
+    ../
 
-# time to compile and install in the specified directory
-make -j20 install # now enjoy the computation power of host to compile for Jetson Nano.
+# time to compile and install in the specified directory in `~/librealsense_binary`
+make -j`nproc` install
 ```
 
 `-DCMAKE_INSTALL_PREFIX=~/librealsense_binary` is to  make sure to change the install 
@@ -99,7 +99,17 @@ directory to be able to copy it into jetson.
 `-DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")` to make sure 
 we are compiling for python3 rather than 2.
 
-If you need to compile for different python versions, you need to install them.
+If you need to compile for different python versions, you need to install that specific python 
+version and then use for example `python3.7` at the last line of above cmake.
+
+## Cross Compile for Jetson Nano on Host
+
+
+If you want to cross compile for jetson nano on host powerfull ubuntu machine, first follow the steps in [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) and then run the following in 
+You need to follow steps on [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) file first to prepare the environment for
+the cross compilation. After following those steps, you may follow the below. If you do not want to 
+
+
 
 Now lets test one of the example binaries. Open another terminal with your default user,
 (not in the simulated environment)
