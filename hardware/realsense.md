@@ -96,7 +96,7 @@ make -j`nproc` install
 ```
 
 `-DCMAKE_INSTALL_PREFIX=~/librealsense_binary` is to  make sure to change the install 
-directory to be able to copy it into jetson.
+directory to be able to copy it into jetson in case of cross-compiling (read more if curious :) ).
 
 `-DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")` to make sure 
 we are compiling for python3 rather than 2.
