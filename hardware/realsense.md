@@ -71,10 +71,10 @@ rm -rf build # to make sure you have an empty build directory
 mkdir build && cd build
 
 # dependencies
-apt-get install \
+sudo apt-get install \
     xorg-dev \
     libxinerama-dev \
-    python3 \ 
+    python3 \
     python3-dev \
     libpython3.6-dev
 
