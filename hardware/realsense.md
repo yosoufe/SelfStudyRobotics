@@ -104,6 +104,13 @@ we are compiling for python3 rather than 2.
 If you need to compile for different python versions, you need to install that specific python 
 version and then use for example `python3.7` at the last line of above cmake.
 
+Now we need to apply udev rules to be able to access the camera without `sudo`:
+```
+cd ..
+sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && udevadm trigger
+```
+
 ## Cross Compile for Jetson Nano on Ubuntu Host
 If you want to cross compile for Jetson nano on host ubuntu machine, first follow the steps in [`cross_compile.md`](https://github.com/yosoufe/SelfStudyRobotics/blob/master/hardware/cross_compile.md) and then follow the previous 
 section but on host and emulated ARM environment.
