@@ -70,7 +70,11 @@ then we need to follow
 
 ```bash
 cd $REALSENSE_DIR
-rm -rf build # to make sure you have an empty build directory
+
+# to make sure you have an empty build directory
+# Otherwise the binaries would get compiled 
+# for wrong python version
+rm -rf build 
 mkdir build && cd build
 
 # dependencies
