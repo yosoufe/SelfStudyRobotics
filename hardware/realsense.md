@@ -1,4 +1,4 @@
-# Intel Real Sense
+# Intel RealSense
 * Getting Started: https://www.intelrealsense.com/get-started/
 
 ### Installations
@@ -51,14 +51,17 @@ Intel Real Sense Camera Mount:
 
 # Compile for Jetson Nano
 ```bash
-cd 
-git clone https://github.com/IntelRealSense/librealsense.git
-cd librealsense
+# set the location as you like, where do you want to clone the repo?
+REALSENSE_DIR=~/librealsense
+REALSENSE_DIR=`realpath $REALSENSE_DIR` # to get the absolute path of directory
+git clone https://github.com/IntelRealSense/librealsense.git ~/librealsense
+cd $REALSENSE_DIR
 ```
 
 We need to add the following line to the beginning of `librealsense/CMake/install_config.cmake` 
 to make the `install` directory movable that all executables can be executed from everywhere
-in the filesystem.
+in the filesystem. If you do not need to move the install directory, 
+you can skip changing the cmake file
 ```cmake
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/../include")
 ```
@@ -66,7 +69,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN:\$ORIGIN/../lib:\$ORIGI
 then we need to follow
 
 ```bash
-cd librealsense
+cd $REALSENSE_DIR
 rm -rf build # to make sure you have an empty build directory
 mkdir build && cd build
 
@@ -80,8 +83,8 @@ sudo apt-get install \
 
 cmake \
     -DCMAKE_BUILD_TYPE=debug \
-    -DCMAKE_INSTALL_PREFIX=../install_host \
-    -DPYTHON_INSTALL_DIR=../install_host/python \
+    -DCMAKE_INSTALL_PREFIX=$REALSENSE_DIR/install_host \
+    -DPYTHON_INSTALL_DIR=$REALSENSE_DIR/install_host/python \
     -DBUILD_EXAMPLES=true \
     -DFORCE_LIBUVC=true \
     -DBUILD_WITH_CUDA=true \
@@ -95,18 +98,36 @@ cmake \
 make -j`nproc` install
 ```
 
-`-DCMAKE_INSTALL_PREFIX=~/librealsense_binary` is to  make sure to change the install 
-directory to be able to copy it into jetson in case of cross-compiling (read more if curious :) ).
+`-DCMAKE_INSTALL_PREFIX=$REALSENSE_DIR/librealsense_binary` and
+`-DPYTHON_INSTALL_DIR=$REALSENSE_DIR/install_host/python` is to  make sure that cmake
+changes the install directory to a defined location so we would know where are they 
+(rather than default version of Ubuntu) and also
+to be able to copy it into jetson in case of cross-compiling (read more if curious :) ).
 
 `-DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")` to make sure 
 we are compiling for python3 rather than 2.
 
 If you need to compile for different python versions, you need to install that specific python 
-version and then use for example `python3.7` at the last line of above cmake.
+version and then use for example `python3.7` at the last line of above cmake. Then binary
+file that is compiled for python 3.6 would not work with python 3.7.
+
+Now we need to add the `PYTHON_INSTALL_DIR` specified above to `PYTHONPATH` for example like this:
+```bash
+echo '# Intel Realsense PYTHON PATH' >> ~/.bashrc
+echo 'PYTHONPATH=$PYTHONPATH:'"$REALSENSE_DIR"'/install_host/python' >> ~/.bashrc
+```
+
+To check that your python installation is correct, the following line should not create
+any error message. If it shows error message, that means you have some problems.
+```bash
+cd
+python3 -c 'import pyrealsense2 as rs'
+```
+
 
 Now we need to apply udev rules to be able to access the camera without `sudo`:
 ```
-cd ..
+cd $REALSENSE_DIR
 sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && udevadm trigger
 ```
