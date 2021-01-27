@@ -115,6 +115,7 @@ Now we need to add the `PYTHON_INSTALL_DIR` specified above to `PYTHONPATH` for 
 ```bash
 echo '# Intel Realsense PYTHON PATH' >> ~/.bashrc
 echo 'PYTHONPATH=$PYTHONPATH:'"$REALSENSE_DIR"'/install_host/python' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 To check that your python installation is correct, the following line should not create
