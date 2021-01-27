@@ -94,11 +94,11 @@ cmake \
     -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)") \
     ../
 
-# time to compile and install in the specified directory in `~/librealsense_binary`
+# time to compile and install in the specified directory in `$REALSENSE_DIR/install_host`
 make -j`nproc` install
 ```
 
-`-DCMAKE_INSTALL_PREFIX=$REALSENSE_DIR/librealsense_binary` and
+`-DCMAKE_INSTALL_PREFIX=$REALSENSE_DIR/install_host` and
 `-DPYTHON_INSTALL_DIR=$REALSENSE_DIR/install_host/python` is to  make sure that cmake
 changes the install directory to a defined location so we would know where are they 
 (rather than default version of Ubuntu) and also
@@ -147,13 +147,13 @@ Now lets test one of the example binaries. Open another terminal with your defau
 sudo su
 export WS=/home/yousof/robotics/jetson/cross_compile
 cd $WS/root/
-sudo scp -r ./librealsense_binary <your_jetson_user>@<your_jetson_ip>:/home/<your-user-on-jetson>/libs/
+sudo scp -r $REALSENSE_DIR/install_host <your_jetson_user>@<your_jetson_ip>:/home/<your-user-on-jetson>/libs/librealsense
 ```
 
 now ssh to the jetson. and run one of the examples like
 ```bash
 ssh <your_jetson_id>@<your_jetson_ip>
-cd libs/librealsense_binary/bin
+cd ~/libs/librealsense/bin
 sudo ./rs-depth
 ```
 
@@ -164,8 +164,8 @@ To make it work without sudo, run the followings on jetson while there
 is no `realsense` sensor connected to your device.
 ```bash
 # first disconnect all realsense sensors from jetson
-cd libs/
-sudo chown -R `id -nu`:`id -ng` librealsense_binary
+cd libs/librealsense
+sudo chown -R `id -nu`:`id -ng` install_host
 sudo wget -O /etc/udev/rules.d/99-realsense-libusb.rules https://raw.githubusercontent.com/IntelRealSense/librealsense/master/config/99-realsense-libusb.rules
 sudo udevadm control --reload-rules && udevadm trigger
 ```
