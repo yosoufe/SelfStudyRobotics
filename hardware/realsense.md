@@ -54,7 +54,7 @@ Intel Real Sense Camera Mount:
 # set the location as you like, where do you want to clone the repo?
 REALSENSE_DIR=~/librealsense
 REALSENSE_DIR=`realpath $REALSENSE_DIR` # to get the absolute path of directory
-git clone https://github.com/IntelRealSense/librealsense.git ~/librealsense
+git clone https://github.com/IntelRealSense/librealsense.git $REALSENSE_DIR
 cd $REALSENSE_DIR
 ```
 
