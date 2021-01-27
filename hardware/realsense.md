@@ -164,7 +164,7 @@ To make it work without sudo, run the followings on jetson while there
 is no `realsense` sensor connected to your device.
 ```bash
 # first disconnect all realsense sensors from jetson
-cd libs/librealsense
+cd ~/libs/librealsense
 sudo chown -R `id -nu`:`id -ng` install_host
 sudo wget -O /etc/udev/rules.d/99-realsense-libusb.rules https://raw.githubusercontent.com/IntelRealSense/librealsense/master/config/99-realsense-libusb.rules
 sudo udevadm control --reload-rules && udevadm trigger
