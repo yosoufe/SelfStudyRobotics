@@ -79,13 +79,13 @@ sudo apt-get install \
     libpython3.6-dev
 
 cmake \
+    -DCMAKE_BUILD_TYPE=debug \
+    -DCMAKE_INSTALL_PREFIX=../install_host \
+    -DPYTHON_INSTALL_DIR=../install_host/python \
     -DBUILD_EXAMPLES=true \
     -DFORCE_LIBUVC=true \
     -DBUILD_WITH_CUDA=true \
-    -DCMAKE_BUILD_TYPE=release \
     -DBUILD_PYTHON_BINDINGS=bool:true \
-    -DCMAKE_INSTALL_PREFIX=~/librealsense_binary \
-    -DPYTHON_INSTALL_DIR=~/librealsense_binary/python \
     -DPYBIND11_INSTALL=ON \
     -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
     -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)") \
