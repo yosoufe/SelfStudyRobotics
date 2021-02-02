@@ -8,6 +8,7 @@ class FramePlotter:
         self.fig = plt.figure()
         self.ax = self.fig.gca(projection='3d')
         self.live = live
+        self.has_started = False
         if self.live:
             plt.ion()
             plt.show()
@@ -24,18 +25,36 @@ class FramePlotter:
         else:
             raise RuntimeError(f'{rot} has wrong dimension.')
 
-        for idx, color in zip(range(3), ['red', 'green', 'blue']):
+        rotate_for_vis = np.array([
+            [0,  0, 1,0],
+            [1,  0, 0,0],
+            [0,  1, 0,0],
+            [0,  0, 0,1.0],
+            ], dtype = np.float)
+        
+        trans = np.matmul(rotate_for_vis, trans)
+
+        for idx, color in zip([2, 0, 1], ['red', 'green', 'blue']):
             xs = [0, trans[0, idx]]
             ys = [0, trans[1, idx]]
             zs = [0, trans[2, idx]]
             self.ax.plot(xs, ys, zs, color=color)
+        self.ax.set_ylabel('Y axis')
+        self.ax.set_xlabel('X axis')
+        self.ax.set_zlabel('Z axis')
         plt.draw()
         plt.pause(0.0001)
         if show:
             plt.show()
+        self.has_started = True
 
     def show(self):
         plt.show(block=False)
+    
+    def shouldEnd(self):
+        if not self.has_started:
+            return False
+        return not plt.fignum_exists(self.fig.number)
 
     # def equal_scale(self):
     #     max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()

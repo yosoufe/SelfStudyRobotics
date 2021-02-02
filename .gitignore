@@ -2,6 +2,7 @@
 # I will try to link in readme files all the documents and books that I use.
 docs/*
 !docs/readme.md
+rotation_matrices.npy
 
 .vscode
 

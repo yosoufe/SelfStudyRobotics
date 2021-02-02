@@ -27,12 +27,11 @@ new_frame = Event()
 
 def save_array(array):
     with open('rotation_matrices.npy', 'wb') as f:
-        np.save(array)
+        np.save(f, array)
 
 @atexit.register
 def cleanup():
     print('clean up')
-    save_array(rotation_matrices)
     for p in pipelines:
         try:
             p.stop()
@@ -108,7 +107,7 @@ for dev in ctx.query_devices():
 print('pipelines started')
 s = time.time()
 # pl.show()
-while True:
+while not pl.shouldEnd():
     if new_frame.wait():
         new_frame.clear()
         with lock:
@@ -116,3 +115,5 @@ while True:
             last_idx = rotation_matrices.shape[0]
             print(last_idx)
         pl.plot_frame(last_frame, None)
+
+save_array(rotation_matrices)
