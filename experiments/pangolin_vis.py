@@ -12,12 +12,13 @@ from OpenGL.arrays import vbo
 
 import ctypes 
 
-def CreateBuffer(attributes):
+# refrence https://stackoverflow.com/questions/56787061/is-there-a-way-to-render-points-faster-opengl
+def CreateBuffer(attributes, vbo):
     m,n = attributes.shape
     bufferdata = attributes.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
     buffersize = m * n * ctypes.sizeof(ctypes.c_float)    # buffer size in bytes 
 
-    vbo = glGenBuffers(1)
+    
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
     glBufferData(GL_ARRAY_BUFFER, buffersize, bufferdata, GL_STATIC_DRAW) 
     glBindBuffer(GL_ARRAY_BUFFER, 0)
@@ -41,12 +42,12 @@ def DrawBuffer(vbo, noOfVertices):
     glDisableClientState(GL_COLOR_ARRAY)
     glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-def draw_points():
+def draw_points(vbo):
     noPoints = 100000
     points = np.random.random((100000, 3)).astype('float32') * 10
     colors = np.array([1.0,0,0]*noPoints, dtype='float32').reshape(noPoints, 3)
     points = np.concatenate([points, colors], axis = 1)
-    bufferObj = CreateBuffer(points)
+    bufferObj = CreateBuffer(points, vbo)
     noPoints  = points.shape[0]
     DrawBuffer(bufferObj, noPoints)
 
@@ -84,16 +85,18 @@ def visulaizer():
         .SetHandler(handler)
     )
 
+    
 
     while not pango.ShouldQuit():
         # Clear screen and activate view to render into
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         d_cam.Activate(s_cam)
 
+        vbo = glGenBuffers(1)
         # Render OpenGL Cube
         # pango.glDrawColouredCube()
 
-        draw_points()
+        draw_points(vbo)
 
         # Swap frames and Process Events
         pango.FinishFrame()
