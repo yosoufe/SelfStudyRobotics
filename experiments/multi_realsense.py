@@ -9,12 +9,10 @@ import time
 import transformations
 import math
 import traceback, sys
-from plot3d import *
+from plot3d import FramePlotter
 from threading import Lock, Event
 
 lock = Lock()
-
-print(rs.__file__)
 
 import atexit
 

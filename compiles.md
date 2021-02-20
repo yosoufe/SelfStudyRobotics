@@ -6,7 +6,7 @@ then
 env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install -v 3.8.5
 ```
 
-# install pangolin
+# install Pangolin
 
 https://github.com/stevenlovegrove/Pangolin#required-dependencies
 
