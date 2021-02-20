@@ -12,51 +12,82 @@ from OpenGL.arrays import vbo
 
 import ctypes 
 
-def heart_filter(p):
-    within_heart = (np.matmul(p*p, np.array([1,9/4.0, 1])) - 1) ** 3 - p[:,0]**2 * p[:,2]**3 - 9.0/200 * p[:,1]**2 * p[:,2]**3 < 0
-    return p[within_heart]
+class Visualizer:
+    def __init__(self):
+        self.win = pango.CreateWindowAndBind("Sensor Visualizer", 640, 480)
+        glEnable(GL_DEPTH_TEST)
+        # Define Projection and initial ModelView matrix
+        self.pm = pango.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.1, 1000)
+        self.mv = pango.ModelViewLookAt(-2,2,-2, 0,0,0, pango.AxisY)
+        self.s_cam = pango.OpenGlRenderState(self.pm, self.mv)
 
-# refrence https://stackoverflow.com/questions/56787061/is-there-a-way-to-render-points-faster-opengl
-def CreateBuffer(attributes, vbo):
-    m,n = attributes.shape
-    bufferdata = attributes.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-    buffersize = m * n * ctypes.sizeof(ctypes.c_float)    # buffer size in bytes 
-
+        # Create Interactive View in window
+        self.handler = pango.Handler3D(self.s_cam)
+        self.d_cam = (
+            pango.CreateDisplay()
+            .SetBounds(
+                pango.Attach(0),
+                pango.Attach(1),
+                pango.Attach(0),
+                pango.Attach(1),
+                -640.0 / 480.0,
+            )
+            .SetHandler(self.handler)
+        )
+        
+        self.vbo = glGenBuffers(1)
     
-    glBindBuffer(GL_ARRAY_BUFFER, vbo)
-    glBufferData(GL_ARRAY_BUFFER, buffersize, bufferdata, GL_STATIC_DRAW) 
-    glBindBuffer(GL_ARRAY_BUFFER, 0)
-    return vbo
+    def CreateBuffer(self, attributes):
+        # refrence https://stackoverflow.com/questions/56787061/is-there-a-way-to-render-points-faster-opengl
+        m,n = attributes.shape
+        bufferdata = attributes.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        buffersize = m * n * ctypes.sizeof(ctypes.c_float)    # buffer size in bytes 
 
-def DrawBuffer(vbo, noOfVertices):
-    glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
+        glBufferData(GL_ARRAY_BUFFER, buffersize, bufferdata, GL_STATIC_DRAW) 
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        return self.vbo
 
-    stride = 6*4 # (24 bates) : [x, y, z, r, g, b] * sizeof(float)
+    def DrawBuffer(self, vbo, noOfVertices):
+        glBindBuffer(GL_ARRAY_BUFFER, vbo)
 
-    glEnableClientState(GL_VERTEX_ARRAY)
-    glVertexPointer(3, GL_FLOAT, stride, None)
+        stride = 6*4 # (24 bates) : [x, y, z, r, g, b] * sizeof(float)
 
-    glEnableClientState(GL_COLOR_ARRAY)
-    offset = 3*4 # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z 
-    glColorPointer(3, GL_FLOAT, stride, ctypes.c_void_p(offset))
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointer(3, GL_FLOAT, stride, None)
 
-    glDrawArrays(GL_POINTS, 0, noOfVertices)
+        glEnableClientState(GL_COLOR_ARRAY)
+        offset = 3*4 # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z 
+        glColorPointer(3, GL_FLOAT, stride, ctypes.c_void_p(offset))
 
-    glDisableClientState(GL_VERTEX_ARRAY)
-    glDisableClientState(GL_COLOR_ARRAY)
-    glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glPointSize(5)
+        glDrawArrays(GL_POINTS, 0, noOfVertices)
 
-def draw_points(vbo, noPoints):
-    # noPoints = 100000
-    points = np.random.random((noPoints, 3)).astype('float32') * 4 - 2
-    points = heart_filter(points)
-    noPoints = points.shape[0]
-    colors = np.array([1.0,0,0]*noPoints, dtype='float32').reshape(noPoints, 3)
-    points = np.concatenate([points, colors], axis = 1)
-    bufferObj = CreateBuffer(points, vbo)
-    noPoints  = points.shape[0]
-    DrawBuffer(bufferObj, noPoints)
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_COLOR_ARRAY)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
 
+    def draw_points(self, noPoints):
+        # Clear screen and activate view to render into
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        self.d_cam.Activate(self.s_cam)
+
+
+        # noPoints = 100000
+        points = np.random.random((noPoints, 3)).astype('float32') * 4 - 2
+        points = heart_filter(points)
+        noPoints = points.shape[0]
+        colors = np.array([1.0,0,0]*noPoints, dtype='float32').reshape(noPoints, 3)
+        points = np.concatenate([points, colors], axis = 1)
+        bufferObj = self.CreateBuffer(points)
+        noPoints  = points.shape[0]
+        self.DrawBuffer(bufferObj, noPoints)
+
+
+def heart_filter(p):
+    within_heart = ((np.matmul(p*p, np.array([1,9/4.0, 1])) - 1) ** 3 - p[:,0]**2 * p[:,2]**3 - 9.0/200 * p[:,1]**2 * p[:,2]**3) < 0
+    return p[within_heart]
+    
 
 def draw_single_point():
     glEnable(GL_POINT_SMOOTH)
@@ -68,41 +99,9 @@ def draw_single_point():
     glEnd()
 
 def visulaizer():
-    win = pango.CreateWindowAndBind("Sensor Visualizer", 640, 480)
-    glEnable(GL_DEPTH_TEST)
-
-
-    # Define Projection and initial ModelView matrix
-    pm = pango.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.1, 1000)
-    mv = pango.ModelViewLookAt(-2,2,-2, 0,0,0, pango.AxisY)
-    s_cam = pango.OpenGlRenderState(pm, mv)
-    
-    # Create Interactive View in window
-    handler = pango.Handler3D(s_cam)
-    d_cam = (
-        pango.CreateDisplay()
-        .SetBounds(
-            pango.Attach(0),
-            pango.Attach(1),
-            pango.Attach(0),
-            pango.Attach(1),
-            -640.0 / 480.0,
-        )
-        .SetHandler(handler)
-    )
-
-    
-    vbo = glGenBuffers(1)
-
+    viz = Visualizer()
     while not pango.ShouldQuit():
-        # Clear screen and activate view to render into
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        d_cam.Activate(s_cam)
-
-        # Render OpenGL Cube
-        # pango.glDrawColouredCube()
-
-        draw_points(vbo, 10000)
+        viz.draw_points(10000)
 
         # Swap frames and Process Events
         pango.FinishFrame()
