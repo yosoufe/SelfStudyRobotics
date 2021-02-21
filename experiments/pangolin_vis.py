@@ -8,12 +8,18 @@ import numpy as np
 import pypangolin as pango
 from OpenGL.GL import *
 from OpenGL.arrays import vbo
-
+import multiprocessing  as mp
+import queue
 
 import ctypes 
 
 class Visualizer:
-    def __init__(self):
+    def __init__(self, qu):
+        self.quit_event = mp.Event() # default is False
+        self.process = mp.Process(target=self.process_function, args=(qu,self.quit_event))
+        self.process.start()
+    
+    def init(self):
         self.win = pango.CreateWindowAndBind("Sensor Visualizer", 640, 480)
         glEnable(GL_DEPTH_TEST)
         # Define Projection and initial ModelView matrix
@@ -67,44 +73,55 @@ class Visualizer:
         glDisableClientState(GL_COLOR_ARRAY)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-    def draw_points(self, noPoints):
+    def draw_points(self, points):
+        noPoints = points.shape[0]
+
         # Clear screen and activate view to render into
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         self.d_cam.Activate(self.s_cam)
-
-
-        # noPoints = 100000
-        points = np.random.random((noPoints, 3)).astype('float32') * 4 - 2
-        points = heart_filter(points)
-        noPoints = points.shape[0]
         colors = np.array([1.0,0,0]*noPoints, dtype='float32').reshape(noPoints, 3)
         points = np.concatenate([points, colors], axis = 1)
         bufferObj = self.CreateBuffer(points)
         noPoints  = points.shape[0]
         self.DrawBuffer(bufferObj, noPoints)
 
+    def process_function(self, qu, quit_event):
+        self.init()
+        while not pango.ShouldQuit():
+            # points = np.random.random((10000, 3)).astype('float32') * 4 - 2
+            # points = heart_filter(points)
+            try:
+                points = qu.get(True)
+                self.draw_points(points)
+            except queue.Empty:
+                pass
+
+            # Swap frames and Process Events
+            pango.FinishFrame()
+        
+        quit_event.set()
+    
+    def join(self):
+        self.process.join()
+    
+    def shoudldQuit(self):
+        return self.quit_event.is_set()
+
 
 def heart_filter(p):
     within_heart = ((np.matmul(p*p, np.array([1,9/4.0, 1])) - 1) ** 3 - p[:,0]**2 * p[:,2]**3 - 9.0/200 * p[:,1]**2 * p[:,2]**3) < 0
     return p[within_heart]
-    
 
-def draw_single_point():
-    glEnable(GL_POINT_SMOOTH)
-    glPointSize(5)
+def main():
+    qu = mp.Queue()
+    viz = Visualizer(qu)
 
-    glBegin(GL_POINTS)
-    glColor3d(1, 0, 0)
-    glVertex3d(0, 0, 0)
-    glEnd()
+    while not viz.shoudldQuit():
+        points = np.random.random((10000, 3)).astype('float32') * 4 - 2
+        points = heart_filter(points)
+        qu.put(points)
 
-def visulaizer():
-    viz = Visualizer()
-    while not pango.ShouldQuit():
-        viz.draw_points(10000)
-
-        # Swap frames and Process Events
-        pango.FinishFrame()
+    viz.join()
 
 if __name__ == "__main__":
-    visulaizer()
+    main()
