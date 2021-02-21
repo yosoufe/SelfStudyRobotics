@@ -1,0 +1,6 @@
+transformations
+pyrealsense2
+numpy
+matplotlib
+pypangolin
+PyOpenGL

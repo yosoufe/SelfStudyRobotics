@@ -112,7 +112,8 @@ def heart_filter(p):
     within_heart = ((np.matmul(p*p, np.array([1,9/4.0, 1])) - 1) ** 3 - p[:,0]**2 * p[:,2]**3 - 9.0/200 * p[:,1]**2 * p[:,2]**3) < 0
     return p[within_heart]
 
-def main():
+if __name__ == "__main__":
+    # drawing a heart using the visualizer above
     qu = mp.Queue()
     viz = Visualizer(qu)
 
@@ -122,6 +123,3 @@ def main():
         qu.put(points)
 
     viz.join()
-
-if __name__ == "__main__":
-    main()

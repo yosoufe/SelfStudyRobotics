@@ -1,7 +1,7 @@
 # let's try this tutorial in python
 # https://dev.intelrealsense.com/docs/rs-multicam
-# import sys
-# sys.path.insert(0, '/home/yousof/robotics/libs/librealsense/build_host/wrappers/python')
+import sys
+sys.path.insert(0, '/home/yousof/robotics/libs/librealsense/install_host/python')
 
 import pyrealsense2 as rs
 import numpy as np 
@@ -67,7 +67,7 @@ def process_t265(frame):
 
 def process_d435(frame):
     if frame.is_points():
-        pass
+        print("D435 frame")
 
 
 def process_frames(frame):
