@@ -20,7 +20,7 @@ pipelines = []
 ctx = rs.context()
 pc = rs.pointcloud()
 pl = FramePlotter(live = True)
-rotation_matrices = np.array([], dtype = np.float).reshape(0,4,4)
+rotation_matrices = np.array([], dtype = float).reshape(0,4,4)
 new_frame = Event()
 
 def save_array(array):
@@ -37,7 +37,7 @@ def cleanup():
             pass
 
 
-def process_t265(frame):
+def process_pose_frame(frame):
     try:
         global rotation_matrices, new_frame
         if frame.is_pose_frame():
@@ -65,27 +65,51 @@ def process_t265(frame):
         raise e
 
 
-def process_d435(frame):
-    if frame.is_points():
-        print("D435 frame")
+def process_depth_frame(depth_frame):
+    points = pc.calculate(depth_frame)
+    v = points.get_vertices()
+    verts = np.asanyarray(v).view(np.float32).reshape(-1, 3)  # xyz
+    print(verts.shape)
 
+
+def print_frame_type(frame):
+    s = f'stream name: {frame.profile.stream_name()},\ttime: {frame.timestamp} \t'
+    if frame.is_depth_frame():
+        s += 'is_depth_frame\t'
+    if frame.is_motion_frame():
+        s += 'is_motion_frame\t'
+    if frame.is_pose_frame():
+        s += 'is_pose_frame\t'
+    if frame.is_points():
+        s += 'is_points\t'
+    if frame.is_video_frame():
+        s += 'is_video_frame\t'
+    if frame.is_frameset():
+        s += 'is_frameset\t'
+    print(s)
 
 def process_frames(frame):
-    # s = f'stream name: {frame.profile.stream_name()},\ttime: {frame.timestamp} \t'
-    # if frame.is_depth_frame():
-    #     s += 'depth frame\t'
-    # if frame.is_motion_frame():
-    #     s += 'motion frame\t'
-    # if frame.is_pose_frame():
-    #     s += 'pose_frame\t'
-    # if frame.is_points():
-    #     s += 'is_points\t'
-    # if frame.is_video_frame():
-    #     s += 'is_video_frame\t'
-    # print(s)
+    try:
+        # print_frame_type(frame)
+        if frame.is_frameset():
+            frameset = frame.as_frameset()
+            if frameset:
+                depth = frameset.get_depth_frame()
+                if depth:
+                    process_depth_frame(depth)
+        
+        if frame.is_pose_frame():
+            pose_frame = frame.as_pose_frame()
+            if pose_frame:
+                pass
+                # process_pose_frame(pose_frame)
 
-    process_t265(frame)
-    process_d435(frame)
+    except Exception as e:
+        # I do not know what is wrong with the realsense 
+        # that it does not generate the error message withou the following mess
+        # I need to manually print the error message and re-raise it.
+        traceback.print_exc()
+        raise e
 
 for dev in ctx.query_devices():
     device_name = dev.get_info(rs.camera_info.name)

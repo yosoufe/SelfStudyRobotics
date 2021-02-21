@@ -16,15 +16,13 @@ import transformations
 import math
 import traceback, sys, queue
 import multiprocessing as mp
-from enum import Enum
-
-class EFrameType(Enum):
-    POSE = 1
-    DEPTH = 2
+import threading as th
+from enums import EFrameType
 
 
 class DAQ:
     def __init__(self, qu):
+        self.process_frame_lock = mp.Lock()
         self.quit_event = mp.Event()
         self.pipelines_lock = mp.Lock()
         self.process = mp.Process(target=self.process_function, args=(qu,))
@@ -62,7 +60,7 @@ class DAQ:
                     cfg.enable_stream(rs.stream.pose)
                 elif device_name == 'Intel RealSense D435I':
                     cfg.enable_device(dev_serial)
-                    cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+                    cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 15)
                 p.start(cfg, self.process_frames) 
                 self.pipelines.append(p)
             print('pipelines started')
@@ -83,18 +81,22 @@ class DAQ:
     
     def process_frames(self,frame):
         try:
-            # print_frame_type(frame)
-            if frame.is_frameset():
-                frameset = frame.as_frameset()
-                if frameset:
-                    depth = frameset.get_depth_frame()
-                    if depth:
-                        self.process_depth_frame(depth)
-            
-            if frame.is_pose_frame():
-                pose_frame = frame.as_pose_frame()
-                if pose_frame:
-                    self.process_pose_frame(pose_frame)
+            if self.process_frame_lock.acquire(block=False):
+                # print_frame_type(frame)
+                if frame.is_frameset():
+                    frameset = frame.as_frameset()
+                    if frameset:
+                        depth = frameset.get_depth_frame()
+                        if depth:
+                            self.process_depth_frame(depth)
+                
+                if frame.is_pose_frame():
+                    pose_frame = frame.as_pose_frame()
+                    if pose_frame:
+                        pass
+                        # self.process_pose_frame(pose_frame)
+
+                self.process_frame_lock.release()
 
         except Exception as e:
             # I do not know what is wrong with the realsense 
@@ -104,9 +106,11 @@ class DAQ:
             self.stop()
             raise e
     
-    def process_depth_frame(self, depth):
-        depth_array = np.asanyarray(depth.get_data())
-        self.qu.put((EFrameType.DEPTH, depth_array))
+    def process_depth_frame(self, depth_frame):
+        points = self.pc.calculate(depth_frame)
+        v = points.get_vertices()
+        verts = np.asanyarray(v).view(np.float32).reshape(-1, 3)  # xyz
+        self.qu.put((EFrameType.DEPTH, verts))
     
     def process_pose_frame(self, pose_frame):
         pose_data = pose_frame.pose_data
@@ -162,7 +166,7 @@ if __name__ == "__main__":
                 frame_type, values = qu.get(timeout=0.001)
 
                 # print their type
-                print(frame_type, values)
+                print(frame_type, values.shape)
             except queue.Empty:
                 pass
         daq.join()

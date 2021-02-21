@@ -10,13 +10,14 @@ from OpenGL.GL import *
 from OpenGL.arrays import vbo
 import multiprocessing  as mp
 import queue
+from enums import EFrameType
 
 import ctypes 
 
 class Visualizer:
     def __init__(self, qu):
         self.quit_event = mp.Event() # default is False
-        self.process = mp.Process(target=self.process_function, args=(qu,self.quit_event))
+        self.process = mp.Process(target=self.process_function, args=(qu,))
         self.process.start()
     
     def init(self):
@@ -66,7 +67,7 @@ class Visualizer:
         offset = 3*4 # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z 
         glColorPointer(3, GL_FLOAT, stride, ctypes.c_void_p(offset))
 
-        glPointSize(5)
+        glPointSize(1)
         glDrawArrays(GL_POINTS, 0, noOfVertices)
 
         glDisableClientState(GL_VERTEX_ARRAY)
@@ -85,27 +86,31 @@ class Visualizer:
         noPoints  = points.shape[0]
         self.DrawBuffer(bufferObj, noPoints)
 
-    def process_function(self, qu, quit_event):
+    def process_function(self, qu):
         self.init()
         while not pango.ShouldQuit():
             # points = np.random.random((10000, 3)).astype('float32') * 4 - 2
             # points = heart_filter(points)
             try:
-                points = qu.get(True)
-                self.draw_points(points)
+                typ , points = qu.get(False)
+                if typ == EFrameType.DEPTH:
+                    self.draw_points(points)
             except queue.Empty:
                 pass
 
             # Swap frames and Process Events
             pango.FinishFrame()
         
-        quit_event.set()
+        self.quit_event.set()
     
     def join(self):
         self.process.join()
     
     def shoudldQuit(self):
         return self.quit_event.is_set()
+    
+    def wait_till_end(self):
+        self.quit_event.wait()
 
 
 def heart_filter(p):
