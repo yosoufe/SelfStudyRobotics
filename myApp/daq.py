@@ -22,18 +22,17 @@ from enums import EFrameType
 
 class DAQ:
     def __init__(self, qu):
-        self.process_frame_lock = mp.Lock()
         self.quit_event = mp.Event()
         self.pipelines_lock = mp.Lock()
-        self.process = mp.Process(target=self.process_function, args=(qu,))
+        self.process = mp.Process(target=self.process_function, args=(qu, self.quit_event))
         self.process.start()
     
-    def process_function(self, qu):
+    def process_function(self, qu, quit_event):
         # initialize and start the pipelines
         self.init(qu)
 
         # wait for the quit event
-        self.quit_event.wait()
+        quit_event.wait()
 
         # close the pipelines
         self.stop_pipelines()
@@ -44,6 +43,13 @@ class DAQ:
         self.pipelines = []
         self.ctx = rs.context()
         self.pc = rs.pointcloud()
+        self.depth_frame_correction = np.array(
+            [
+                [0.0,0.0,1.0],
+                [-1.0,0.0,0.0],
+                [0.0,-1.0,0.0],
+            ], dtype=np.float32
+        ).transpose()
         self.start_pipelines()
     
     def start_pipelines(self):
@@ -77,26 +83,27 @@ class DAQ:
         self.quit_event.set()
     
     def join(self):
-        self.process.join()
+        self.process.join(timeout=0.5)
+        self.process.terminate()
     
     def process_frames(self,frame):
         try:
-            if self.process_frame_lock.acquire(block=False):
-                # print_frame_type(frame)
-                if frame.is_frameset():
-                    frameset = frame.as_frameset()
-                    if frameset:
-                        depth = frameset.get_depth_frame()
-                        if depth:
-                            self.process_depth_frame(depth)
-                
-                if frame.is_pose_frame():
-                    pose_frame = frame.as_pose_frame()
-                    if pose_frame:
-                        pass
-                        # self.process_pose_frame(pose_frame)
+            # print_frame_type(frame)
+            if not self.qu.empty():
+                return
 
-                self.process_frame_lock.release()
+            if frame.is_frameset():
+                frameset = frame.as_frameset()
+                if frameset:
+                    depth = frameset.get_depth_frame()
+                    if depth:
+                        self.process_depth_frame(depth)
+            
+            if frame.is_pose_frame():
+                pose_frame = frame.as_pose_frame()
+                if pose_frame:
+                    pass
+                    # self.process_pose_frame(pose_frame)
 
         except Exception as e:
             # I do not know what is wrong with the realsense 
@@ -110,6 +117,7 @@ class DAQ:
         points = self.pc.calculate(depth_frame)
         v = points.get_vertices()
         verts = np.asanyarray(v).view(np.float32).reshape(-1, 3)  # xyz
+        verts = np.matmul(verts, self.depth_frame_correction)
         self.qu.put((EFrameType.DEPTH, verts))
     
     def process_pose_frame(self, pose_frame):
@@ -121,6 +129,7 @@ class DAQ:
         tran_matrix = transformations.quaternion_matrix(q)
         tran_matrix[:3,3] = t
         self.qu.put((EFrameType.POSE, tran_matrix))
+
     
     def shoudldQuit(self):
         return self.quit_event.is_set()

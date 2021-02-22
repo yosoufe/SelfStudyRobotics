@@ -25,7 +25,8 @@ class Visualizer:
         glEnable(GL_DEPTH_TEST)
         # Define Projection and initial ModelView matrix
         self.pm = pango.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.1, 1000)
-        self.mv = pango.ModelViewLookAt(-2,2,-2, 0,0,0, pango.AxisY)
+        # self.mv = pango.ModelViewLookAt(-2,2,-2, 0,0,0, pango.AxisY)
+        self.mv = pango.ModelViewLookAt(-1,-0.5,1, 0,0,0, pango.AxisZ)
         self.s_cam = pango.OpenGlRenderState(self.pm, self.mv)
 
         # Create Interactive View in window
@@ -89,10 +90,8 @@ class Visualizer:
     def process_function(self, qu):
         self.init()
         while not pango.ShouldQuit():
-            # points = np.random.random((10000, 3)).astype('float32') * 4 - 2
-            # points = heart_filter(points)
             try:
-                typ , points = qu.get(False)
+                typ , points = qu.get(timeout = 0.0001)
                 if typ == EFrameType.DEPTH:
                     self.draw_points(points)
             except queue.Empty:
@@ -111,11 +110,6 @@ class Visualizer:
     
     def wait_till_end(self):
         self.quit_event.wait()
-
-
-def heart_filter(p):
-    within_heart = ((np.matmul(p*p, np.array([1,9/4.0, 1])) - 1) ** 3 - p[:,0]**2 * p[:,2]**3 - 9.0/200 * p[:,1]**2 * p[:,2]**3) < 0
-    return p[within_heart]
 
 if __name__ == "__main__":
     # drawing a heart using the visualizer above
