@@ -11,8 +11,23 @@ from OpenGL.arrays import vbo
 import multiprocessing  as mp
 import queue
 from enums import EFrameType
+import transformations
+import math
 
 import ctypes 
+
+def axisAngleFromRotation(rotation):
+    # https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm
+    quat = transformations.quaternion_from_matrix(rotation)
+    den = math.sqrt(1-quat[0]* quat[0])
+    angleAxis =  [
+        math.degrees(2* math.acos(quat[0])), # angle
+        quat[1]/den,
+        quat[2]/den,
+        quat[3]/den,
+    ]
+    print(angleAxis)
+    return angleAxis
 
 class Visualizer:
     def __init__(self, qu):
@@ -21,6 +36,16 @@ class Visualizer:
         self.process.start()
     
     def init(self):
+        self.depth_frame_correction = np.array(
+            [
+                [0.0,0.0,1.0,0],
+                [-1.0,0.0,0.0,0],
+                [0.0,-1.0,0.0,0],
+                [0.0,0.0,0,1],
+            ], dtype=np.float32
+        )
+        self.axisAngle = axisAngleFromRotation(self.depth_frame_correction)
+
         self.win = pango.CreateWindowAndBind("Sensor Visualizer", 640, 480)
         glEnable(GL_DEPTH_TEST)
         # Define Projection and initial ModelView matrix
@@ -69,6 +94,7 @@ class Visualizer:
         glColorPointer(3, GL_FLOAT, stride, ctypes.c_void_p(offset))
 
         glPointSize(1)
+        glRotatef(*self.axisAngle)
         glDrawArrays(GL_POINTS, 0, noOfVertices)
 
         glDisableClientState(GL_VERTEX_ARRAY)

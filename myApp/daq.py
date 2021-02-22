@@ -117,7 +117,7 @@ class DAQ:
         points = self.pc.calculate(depth_frame)
         v = points.get_vertices()
         verts = np.asanyarray(v).view(np.float32).reshape(-1, 3)  # xyz
-        verts = np.matmul(verts, self.depth_frame_correction)
+        # verts = np.matmul(verts, self.depth_frame_correction)
         self.qu.put((EFrameType.DEPTH, verts))
     
     def process_pose_frame(self, pose_frame):
