@@ -10,7 +10,7 @@ from OpenGL.GL import *
 from OpenGL.arrays import vbo
 import multiprocessing  as mp
 import queue
-from enums import EFrameType
+from py3dscanner.enums import EFrameType
 import transformations
 import math
 
@@ -26,7 +26,7 @@ def axisAngleFromRotation(rotation):
         quat[2]/den,
         quat[3]/den,
     ]
-    print(angleAxis)
+    # print(angleAxis)
     return angleAxis
 
 class Visualizer:

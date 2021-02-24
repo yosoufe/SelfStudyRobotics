@@ -17,7 +17,7 @@ import math
 import traceback, sys, queue
 import multiprocessing as mp
 import threading as th
-from enums import EFrameType
+from py3dscanner.enums import EFrameType
 
 
 class DAQ:
