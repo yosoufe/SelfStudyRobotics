@@ -67,7 +67,7 @@ class Visualizer:
             )
             .SetHandler(self.handler)
         )
-        
+        self.points = None
         self.vbo = glGenBuffers(1)
     
     def CreateBuffer(self, attributes):
@@ -119,9 +119,11 @@ class Visualizer:
             try:
                 typ , points = qu.get(timeout = 0.0001)
                 if typ == EFrameType.DEPTH:
-                    self.draw_points(points)
+                    self.points = points
             except queue.Empty:
                 pass
+
+            self.draw_points(self.points)
 
             # Swap frames and Process Events
             pango.FinishFrame()
@@ -136,15 +138,3 @@ class Visualizer:
     
     def wait_till_end(self):
         self.quit_event.wait()
-
-if __name__ == "__main__":
-    # drawing a heart using the visualizer above
-    qu = mp.Queue()
-    viz = Visualizer(qu)
-
-    while not viz.shoudldQuit():
-        points = np.random.random((10000, 3)).astype('float32') * 4 - 2
-        points = heart_filter(points)
-        qu.put(points)
-
-    viz.join()

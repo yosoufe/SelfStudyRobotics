@@ -161,28 +161,6 @@ def print_frame_type(frame):
 
 
 
-if __name__ == "__main__": 
-    # create a queue
-    qu = mp.Queue()
-
-    # pass the queue to the DAQ
-    daq = DAQ(qu)
-
-    try:
-        while not daq.shoudldQuit():
-            # receive frames from the queue
-            try:
-                frame_type, values = qu.get(timeout=0.001)
-
-                # print their type
-                print(frame_type, values.shape)
-            except queue.Empty:
-                pass
-        daq.join()
-    except KeyboardInterrupt as e:
-        daq.stop()
-        daq.join()
-        raise e
 
 
     
