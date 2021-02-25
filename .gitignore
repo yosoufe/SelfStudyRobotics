@@ -3,6 +3,7 @@
 docs/*
 !docs/readme.md
 rotation_matrices.npy
+*.npy
 
 .vscode
 

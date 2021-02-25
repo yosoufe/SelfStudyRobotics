@@ -10,7 +10,7 @@ import multiprocessing as mp
 if __name__ == "__main__":
     qu = mp.Queue()
     vz = vis.Visualizer(qu)
-    dq = daq.DAQ(qu)
+    dq = daq.DAQ(qu, 'save_to_this.npy')
 
 
     vz.wait_till_end()

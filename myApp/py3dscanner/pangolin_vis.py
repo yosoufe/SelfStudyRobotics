@@ -122,8 +122,8 @@ class Visualizer:
                     self.points = points
             except queue.Empty:
                 pass
-
-            self.draw_points(self.points)
+            if isinstance(self.points, np.ndarray):
+                self.draw_points(self.points)
 
             # Swap frames and Process Events
             pango.FinishFrame()

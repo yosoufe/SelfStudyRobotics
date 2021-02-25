@@ -6,7 +6,7 @@ for data aquisition for the realsesnes sensosrs:
     - pass the frames to the visualizer via a queue 
 """
 
-import sys
+import sys, os
 sys.path.insert(0, '/home/yousof/robotics/libs/librealsense/install_host/python')
 
 import pyrealsense2 as rs
@@ -21,7 +21,11 @@ from py3dscanner.enums import EFrameType
 
 
 class DAQ:
-    def __init__(self, qu):
+    def __init__(self, qu, filename = None):
+        if filename != None:
+            self.recorder = Recorder(filename)
+        else:
+            self.recorder = None
         self.quit_event = mp.Event()
         self.pipelines_lock = mp.Lock()
         self.process = mp.Process(target=self.process_function, args=(qu, self.quit_event))
@@ -66,7 +70,7 @@ class DAQ:
                     cfg.enable_stream(rs.stream.pose)
                 elif device_name == 'Intel RealSense D435I':
                     cfg.enable_device(dev_serial)
-                    cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 15)
+                    cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
                 p.start(cfg, self.process_frames) 
                 self.pipelines.append(p)
             print('pipelines started')
@@ -102,8 +106,7 @@ class DAQ:
             if frame.is_pose_frame():
                 pose_frame = frame.as_pose_frame()
                 if pose_frame:
-                    pass
-                    # self.process_pose_frame(pose_frame)
+                    self.process_pose_frame(pose_frame)
 
         except Exception as e:
             # I do not know what is wrong with the realsense 
@@ -118,6 +121,7 @@ class DAQ:
         v = points.get_vertices()
         verts = np.asanyarray(v).view(np.float32).reshape(-1, 3)  # xyz
         # verts = np.matmul(verts, self.depth_frame_correction)
+        self.write_data(typ=EFrameType.DEPTH, val=verts)
         self.qu.put((EFrameType.DEPTH, verts))
     
     def process_pose_frame(self, pose_frame):
@@ -128,7 +132,12 @@ class DAQ:
         q = [q.w, q.x, q.y , q.z]
         tran_matrix = transformations.quaternion_matrix(q)
         tran_matrix[:3,3] = t
-        self.qu.put((EFrameType.POSE, tran_matrix))
+        # self.qu.put((EFrameType.POSE, tran_matrix))
+        self.write_data(typ = EFrameType.POSE, val=tran_matrix)
+    
+    def write_data(self, typ, val):
+        if self.recorder:
+            self.recorder.add_new_data(typ= typ, val= val)
 
     
     def shoudldQuit(self):
@@ -159,8 +168,27 @@ def print_frame_type(frame):
 
 
 
+class Recorder:
+    """ Synchronise and write to a file
+    """
+    def __init__(self, filename):
+        if os.path.exists(filename):
+            os.remove(filename)
+        self.filename = filename
+        self.last_pose = None
+        self.last_depth = None
 
-
-
+    def add_new_data(self,typ, val):
+        if typ == EFrameType.DEPTH:
+            self.last_depth = val
+        elif typ == EFrameType.POSE:
+            self.last_pose = val
+        if isinstance(self.last_depth, np.ndarray) and isinstance(self.last_pose, np.ndarray):
+            self.write_to_file(self.last_depth)
+            self.write_to_file(self.last_pose)
+            self.last_depth, self.last_pose = None, None
 
     
+    def write_to_file(self, array):
+        with open(self.filename,'ab') as f:
+            np.save(f, array)
