@@ -23,7 +23,5 @@ def test_numpy_save():
             print(b)
 
 if __name__ == "__main__":
-    test_numpy_save()
-    # qu = mp.Queue()
-    # dq = daq.DAQ(qu)
-    # rd = daq.Recorder(qu)
+    # test_numpy_save()
+    test_recorder()

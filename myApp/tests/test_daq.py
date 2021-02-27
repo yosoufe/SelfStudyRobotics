@@ -7,7 +7,7 @@ if __name__ == "__main__":
     qu = mp.Queue()
 
     # pass the queue to the DAQ
-    dq = daq.DAQ(qu)
+    dq = daq.DAQ(qu, filename='test_data.npy')
 
     try:
         while not dq.shoudldQuit():
