@@ -2,7 +2,8 @@ import multiprocessing as mp
 from py3dscanner import daq
 import queue
 
-if __name__ == "__main__": 
+
+def test_record_data():
     # create a queue
     qu = mp.Queue()
 
@@ -24,3 +25,10 @@ if __name__ == "__main__":
         dq.stop()
         dq.join()
         raise e
+
+def test_load_data():
+    data = daq.load_data(filename='/home/yousof/robotics/data/test_data.npy')
+
+if __name__ == "__main__": 
+    #test_record_data()
+    test_load_data()

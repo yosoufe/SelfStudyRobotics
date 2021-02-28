@@ -177,18 +177,52 @@ class Recorder:
         self.filename = filename
         self.last_pose = None
         self.last_depth = None
+        self.lock = mp.Lock()
 
     def add_new_data(self,typ, val):
         if typ == EFrameType.DEPTH:
             self.last_depth = val
         elif typ == EFrameType.POSE:
             self.last_pose = val
-        if isinstance(self.last_depth, np.ndarray) and isinstance(self.last_pose, np.ndarray):
-            self.write_to_file(self.last_depth)
-            self.write_to_file(self.last_pose)
-            self.last_depth, self.last_pose = None, None
+        with self.lock:
+            if isinstance(self.last_depth, np.ndarray) and isinstance(self.last_pose, np.ndarray):
+                self.write_to_file(self.last_depth)
+                self.write_to_file(self.last_pose)
+                self.last_depth, self.last_pose = None, None
 
     
     def write_to_file(self, array):
         with open(self.filename,'ab') as f:
             np.save(f, array)
+            print(array.shape)
+
+def load_data(filename):
+    """ returns tuples of (depths, poses)
+    """
+    with open(filename, 'rb') as f:
+        depths = None
+        poses = None
+        while True:
+            try:
+                arr = np.load(f)
+            except ValueError as e:
+                if 'allow_pickle=False' in str(e):
+                    break
+                else:
+                    raise e
+            arr = np.expand_dims(arr, axis=0)
+            if arr.shape == (1,4,4):
+                if isinstance(poses,type(None)):
+                    poses = arr
+                else:
+                    poses = np.concatenate((poses, arr), axis=0)
+            else:
+                if isinstance(depths,type(None)):
+                    depths = arr
+                else:
+                    depths = np.concatenate((depths, arr), axis=0)
+        mi = min(depths.shape[0],poses.shape[0])
+        print(f'{mi} samples loaded')
+        depths, poses = depths[:mi], poses[:mi]
+        assert depths.shape[0]==poses.shape[0], f'{depths.shape}!={poses.shape}'
+    return (depths, poses)
