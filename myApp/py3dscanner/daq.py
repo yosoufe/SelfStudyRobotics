@@ -6,7 +6,7 @@ for data aquisition for the realsesnes sensosrs:
     - pass the frames to the visualizer via a queue 
 """
 
-import sys, os
+import sys, os, signal
 sys.path.insert(0, '/home/yousof/robotics/libs/librealsense/install_host/python')
 
 import pyrealsense2 as rs
@@ -22,28 +22,35 @@ from py3dscanner.enums import EFrameType
 
 class DAQ:
     def __init__(self, qu, filename = None):
+        signal.signal(signal.SIGINT, self.signal_handler)
         if filename != None:
             self.recorder = Recorder(filename)
         else:
             self.recorder = None
         self.quit_event = mp.Event()
-        self.pipelines_lock = mp.Lock()
-        self.process = mp.Process(target=self.process_function, args=(qu, self.quit_event))
+        self.quit_lock = mp.Lock()
+        self.qu = qu # queues
+    
+    def run(self):
+        self.process = mp.Process(target=self.process_function)
         self.process.start()
     
-    def process_function(self, qu, quit_event):
+    def process_function(self):
+        signal.signal(signal.SIGINT, signal.SIG_IGN) # disable signal handler in the sub process
         # initialize and start the pipelines
-        self.init(qu)
+        self.init()
 
         # wait for the quit event
-        quit_event.wait()
+        self.quit_event.wait()
+        print("QUITITNG DAQ")
 
         # close the pipelines
         self.stop_pipelines()
+        print("Pipeline Stopped")
             
 
-    def init(self, qu):
-        self.qu = qu
+    def init(self):
+        self.pipelines_lock = mp.Lock()
         self.pipelines = []
         self.ctx = rs.context()
         self.pc = rs.pointcloud()
@@ -84,7 +91,10 @@ class DAQ:
                     pass
 
     def stop(self):
-        self.quit_event.set()
+        with self.quit_lock:
+            if not self.quit_event.is_set():
+                self.quit_event.set()
+
     
     def join(self):
         self.process.join(timeout=0.5)
@@ -92,21 +102,25 @@ class DAQ:
     
     def process_frames(self,frame):
         try:
-            # print_frame_type(frame)
-            if not self.qu.empty():
+            if self.shoudldQuit():
                 return
 
-            if frame.is_frameset():
-                frameset = frame.as_frameset()
-                if frameset:
-                    depth = frameset.get_depth_frame()
-                    if depth:
-                        self.process_depth_frame(depth)
-            
-            if frame.is_pose_frame():
-                pose_frame = frame.as_pose_frame()
-                if pose_frame:
-                    self.process_pose_frame(pose_frame)
+            with self.quit_lock:
+                # print_frame_type(frame)
+                if not self.qu.empty():
+                    return
+
+                if frame.is_frameset():
+                    frameset = frame.as_frameset()
+                    if frameset:
+                        depth = frameset.get_depth_frame()
+                        if depth:
+                            self.process_depth_frame(depth)
+                
+                if frame.is_pose_frame():
+                    pose_frame = frame.as_pose_frame()
+                    if pose_frame:
+                        self.process_pose_frame(pose_frame)
 
         except Exception as e:
             # I do not know what is wrong with the realsense 
@@ -142,6 +156,10 @@ class DAQ:
     
     def shoudldQuit(self):
         return self.quit_event.is_set()
+    
+    def signal_handler(self, sigum, frame):
+        # print(f'{self.quit_event.is_set()=}')
+        self.stop()
 
 
 
@@ -194,11 +212,18 @@ class Recorder:
     def write_to_file(self, array):
         with open(self.filename,'ab') as f:
             np.save(f, array)
-            print(array.shape)
+            # print(array.shape)
+
 
 def load_data(filename):
     """ returns tuples of (depths, poses)
     """
+    def is_correct_format(arr):
+        if isinstance(arr, type(None)):
+            return False
+        
+        return True
+
     with open(filename, 'rb') as f:
         depths = None
         poses = None
@@ -206,10 +231,12 @@ def load_data(filename):
             try:
                 arr = np.load(f)
             except ValueError as e:
-                if 'allow_pickle=False' in str(e):
+                if 'allow_pickle=False' in str(e) or 'cannot reshape array of size' in str(e):
                     break
                 else:
                     raise e
+            if not is_correct_format(arr):
+                break
             arr = np.expand_dims(arr, axis=0)
             if arr.shape == (1,4,4):
                 if isinstance(poses,type(None)):
