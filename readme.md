@@ -1,5 +1,9 @@
 # Self Study Robotics
 
+The main work is now in `myApp/py3dscanner`.
+
+![Basic Results](myApp/imgs/first_step.gif)
+
 # Online Courses:
 **Prof. Dr. Wolfram Burgard**:
 - Introduction to Mobile Robotics - SS 2020

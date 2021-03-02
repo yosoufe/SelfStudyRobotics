@@ -68,6 +68,7 @@ class Visualizer:
             .SetHandler(self.handler)
         )
         self.points = None
+        self.frame = None
         self.vbo = glGenBuffers(1)
     
     def CreateBuffer(self, attributes):
@@ -93,7 +94,7 @@ class Visualizer:
         offset = 3*4 # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z 
         glColorPointer(3, GL_FLOAT, stride, ctypes.c_void_p(offset))
 
-        glPointSize(1)
+        glPointSize(0.0001)
         # converting from realsense coordinate system to a vehicle like coordinate system
         glRotatef(*self.axisAngle)
         glDrawArrays(GL_POINTS, 0, noOfVertices)
@@ -101,8 +102,11 @@ class Visualizer:
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_COLOR_ARRAY)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
+    
+    def draw_frames(self,frame_pose):
+        pango.glDrawAxis(frame_pose, 0.15)
 
-    def draw_points(self, points):
+    def draw_points(self, points, frame = None):
         noPoints = points.shape[0]
 
         # Clear screen and activate view to render into
@@ -113,18 +117,24 @@ class Visualizer:
         bufferObj = self.CreateBuffer(points)
         noPoints  = points.shape[0]
         self.DrawBuffer(bufferObj, noPoints)
+        if isinstance(frame, np.ndarray): # not None
+            self.draw_frames(frame)
 
     def process_function(self, qu):
         self.init()
         while not pango.ShouldQuit():
             try:
-                typ , points = qu.get(timeout = 0.0001)
+                typ , items = qu.get(timeout = 0.0001)
                 if typ == EFrameType.DEPTH:
-                    self.points = points
+                    if isinstance(items, tuple):
+                        self.points = items[0]
+                        self.frame = items[1]
+                    else:
+                        self.points = items
             except queue.Empty:
                 pass
             if isinstance(self.points, np.ndarray):
-                self.draw_points(self.points)
+                self.draw_points(self.points, self.frame)
 
             # Swap frames and Process Events
             pango.FinishFrame()

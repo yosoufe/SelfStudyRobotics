@@ -1,5 +1,13 @@
 # Requirements
 
+The setup:
+
+![Setup](imgs/setup.jpg)
+
+Trying to make a 3d scanner for now. Some basic results
+
+![Basic Results](imgs/first_step.gif)
+
 ## Python env
 Install pyenv: https://github.com/pyenv/pyenv
 then
@@ -18,14 +26,14 @@ According to [realsense github wiki page](https://github.com/IntelRealSense/libr
 
 > Point Coordinates: Each stream of images provided by this SDK is also associated with a separate 3D coordinate space, specified in meters, with the coordinate [0,0,0] referring to the center of the physical imager. Within this space, the positive x-axis points to the right, the positive y-axis points down, and the positive z-axis points forward. Coordinates within this space are referred to as "points", and are used to describe locations within 3D space that might be visible within a particular image.
 
-![D435i](LRS_CS_axis_base.png)
+![D435i](imgs/LRS_CS_axis_base.png)
 
 #### T265
 According to [this intel blog](https://www.intelrealsense.com/how-to-getting-imu-data-from-d435i-and-t265/) the **T265** output is as follow:
 
 > To aid AR/VR integration, the TM265 tracking device uses the defacto VR framework standard coordinate system instead of the SDK standard:
 
-![T265](T265_orientation_axis.png)
+![T265](imgs/T265_orientation_axis.png)
 
 > 1. Positive X direction is towards right imager
 > 2. Positive Y direction is upwards toward the top of the device
