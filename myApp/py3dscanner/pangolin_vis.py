@@ -94,6 +94,7 @@ class Visualizer:
         glColorPointer(3, GL_FLOAT, stride, ctypes.c_void_p(offset))
 
         glPointSize(1)
+        # converting from realsense coordinate system to a vehicle like coordinate system
         glRotatef(*self.axisAngle)
         glDrawArrays(GL_POINTS, 0, noOfVertices)
 
