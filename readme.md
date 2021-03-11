@@ -9,7 +9,7 @@ The main work is now in `myApp/py3dscanner`.
 - Introduction to Mobile Robotics - SS 2020
   - http://ais.informatik.uni-freiburg.de/teaching/ss20/robotics/
 
-**Dieter Fox**
+**Professor Dieter Fox**
 - CSE571: Probabilistic Robotics
   - https://courses.cs.washington.edu/courses/cse571/
 
