@@ -57,3 +57,13 @@ sudo sh -c 'echo 255 > /sys/devices/pwm-fan/target_pwm' # turn on the fan
 ## VNC on Jetson
 - https://medium.com/@bharathsudharsan023/jetson-nano-remote-vnc-access-d1e71c82492b
 - https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup
+
+
+## Calibration
+```
+cd tests
+python test_calibrate.py --SN_T265 948422110533 --SN_D4xx 938422070309 --grid_H 6  --grid_W 4 --visualize --size 29.85
+```
+
+Of course you need to chagne the serial numbers according to your sensors. Use `rs-enumerate-devices` from realsense 
+library to find out serial numbers of your sensors.

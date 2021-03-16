@@ -116,6 +116,7 @@ class DAQ:
                         depth = frameset.get_depth_frame()
                         if depth:
                             self.process_depth_frame(depth)
+                            # print(f'{depth.get_units()=}')
                 
                 if frame.is_pose_frame():
                     pose_frame = frame.as_pose_frame()

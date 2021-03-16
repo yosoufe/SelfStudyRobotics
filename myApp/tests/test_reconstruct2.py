@@ -6,17 +6,12 @@ from py3dscanner.enums import EFrameType
 import time
 
 # at each frame
-# t265_to_d435 = np.identity(4, dtype=float)
-# t265_to_d435 = np.array([
-#     [0.999961995,0.007230056,-0.004863583,-0.009731811],
-#     [0.007235446,-0.999973281,0.001091519,0.032668403],
-#     [-0.004855561,-0.001126669,-0.999987606,-0.047080201],
-#     [0.000000000,0.000000000,0.000000000,1.000000000]],dtype= float)
-
-t265_to_d435 = np.array([[ 0.99998,  0.00667, -0.00037, -0.01005],
-       [ 0.00667, -0.99986,  0.01551,  0.02636],
-       [-0.00026, -0.01551, -0.99988, -0.01577],
-       [ 0.     ,  0.     ,  0.     ,  1.     ]])
+t265_to_d435 = np.identity(4, dtype=float)
+t265_to_d435[1,1]=-1.0
+t265_to_d435[2,2]=-1.0
+# t265_to_d435[0,3]=22.08886  / 1000.0
+# t265_to_d435[1,3]=32.76069  / 1000.0
+# t265_to_d435[2,3]=-47.06099 / 1000.0
 d435_to_t265 = np.linalg.inv(t265_to_d435)
 print(f'{t265_to_d435=}')
 
@@ -40,7 +35,7 @@ if __name__ == "__main__":
     print(f'{transformed.shape=}')
 
     qu = mp.Queue()
-    viz = vizz.Visualizer(qu)
+    viz = vizz.Visualizer(qu, title = "Sensor Visualizer- Without calibration")
 
     idx = 0
 

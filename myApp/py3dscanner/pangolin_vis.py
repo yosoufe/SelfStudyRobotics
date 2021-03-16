@@ -30,12 +30,12 @@ def axisAngleFromRotation(rotation):
     return angleAxis
 
 class Visualizer:
-    def __init__(self, qu):
+    def __init__(self, qu, title = "Sensor Visualizer"):
         self.quit_event = mp.Event() # default is False
-        self.process = mp.Process(target=self.process_function, args=(qu,))
+        self.process = mp.Process(target=self.process_function, args=(qu,title))
         self.process.start()
     
-    def init(self):
+    def init(self, title):
         self.depth_frame_correction = np.array(
             [
                 [0.0,0.0,1.0,0],
@@ -46,12 +46,12 @@ class Visualizer:
         )
         self.axisAngle = axisAngleFromRotation(self.depth_frame_correction)
 
-        self.win = pango.CreateWindowAndBind("Sensor Visualizer", 640, 480)
+        self.win = pango.CreateWindowAndBind(title, 640, 480)
         glEnable(GL_DEPTH_TEST)
         # Define Projection and initial ModelView matrix
-        self.pm = pango.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.1, 1000)
+        self.pm = pango.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.01, 100000)
         # self.mv = pango.ModelViewLookAt(-2,2,-2, 0,0,0, pango.AxisY)
-        self.mv = pango.ModelViewLookAt(-1,-0.5,1, 0,0,0, pango.AxisZ)
+        self.mv = pango.ModelViewLookAt(-1/2,-0.5/2,1/2.0, 0,0,0, pango.AxisZ)
         self.s_cam = pango.OpenGlRenderState(self.pm, self.mv)
 
         # Create Interactive View in window
@@ -120,11 +120,11 @@ class Visualizer:
         if isinstance(frame, np.ndarray): # not None
             self.draw_frames(frame)
 
-    def process_function(self, qu):
-        self.init()
+    def process_function(self, qu, title):
+        self.init(title)
         while not pango.ShouldQuit():
             try:
-                typ , items = qu.get(timeout = 0.0001)
+                typ , items = qu.get(block= False) # timeout = 0.0001
                 if typ == EFrameType.DEPTH:
                     if isinstance(items, tuple):
                         self.points = items[0]
