@@ -67,3 +67,21 @@ python test_calibrate.py --SN_T265 948422110533 --SN_D4xx 938422070309 --grid_H 
 
 Of course you need to chagne the serial numbers according to your sensors. Use `rs-enumerate-devices` from realsense 
 library to find out serial numbers of your sensors.
+
+
+# Next step
+Okay, calibrations is working but the results after the calibration is not 
+any better. This either means the calibration is actually not working, or 
+the error that I currently see is not bevause of the calibration issues or
+the error that is caused by uncalibrated system is not visible due to errors
+of the T265 pose measurement. So what now?
+
+Now I would like to invest some time on learning comen techniques for pointcloud
+registeration methods. I found [this video](https://youtu.be/uwNdLdRozeA)
+and [this video](https://youtu.be/lRENNVC-FjM) which is talking about a 
+registeration method and also an overview of some of methods. 
+
+But its algorithm needs features as an input. And is talking about Open3d library 
+offering some feature extraction method like FPFH and also 3DSmoothNet.
+
+So lets start with learnong about features in 3d point cloud.
