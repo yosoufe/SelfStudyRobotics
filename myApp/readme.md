@@ -81,7 +81,15 @@ registeration methods. I found [this video](https://youtu.be/uwNdLdRozeA)
 and [this video](https://youtu.be/lRENNVC-FjM) which is talking about a 
 registeration method and also an overview of some of methods. 
 
-But its algorithm needs features as an input. And is talking about Open3d library 
-offering some feature extraction method like FPFH and also 3DSmoothNet.
+[PCL](https://pcl.readthedocs.io/projects/tutorials/en/latest/registration_api.html#registration-api) and
+[Open3d](http://www.open3d.org/docs/release/tutorial/pipelines/global_registration.html) have wonderful documentation about registeration.
 
-So lets start with learnong about features in 3d point cloud.
+Registeration needs features as an input. And is talking about Open3d library 
+offering some feature extraction method like FPFH
+also 3DSmoothNet.
+
+Here are some links to learn more about features from PCL library:
+- https://pcl.readthedocs.io/projects/tutorials/en/latest/index.html#features
+- https://pcl.readthedocs.io/projects/tutorials/en/latest/fpfh_estimation.html
+
+So lets start with learning about features in 3d point cloud.
