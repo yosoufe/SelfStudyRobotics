@@ -11,7 +11,7 @@ Trying to make a 3d scanner for now. Some basic results
 # Requirements
 
 * Python enviornment, pyenv: [instructions](https://github.com/yosoufe/instructions/blob/main/python/pyenv.md)
-* Install realsense: follow the realsense guidelines. I have documented how I compiled it in [here](https://github.com/yosoufe/instructions/blob/main/realsense/realsense.md.)
+* Install realsense: follow the realsense guidelines. I have documented how I compiled it in [here](https://github.com/yosoufe/instructions/blob/main/realsense/realsense.md)
 * Install Pangolin: [instructions](https://github.com/yosoufe/instructions/blob/main/pangolin.md)
 * opencv for calibratiom: [instructions](https://github.com/yosoufe/instructions/blob/main/opencv.md)
 
@@ -59,17 +59,17 @@ sudo sh -c 'echo 255 > /sys/devices/pwm-fan/target_pwm' # turn on the fan
 - https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup
 
 
-## Calibration
+# Calibration
 ```
 cd tests
-python test_calibrate.py --SN_T265 948422110533 --SN_D4xx 938422070309 --grid_H 6  --grid_W 4 --visualize --size 29.85
+python test_calibrate.py --SN_T265 948422110533 --SN_D4xx 938422070309 --grid_H 6  --grid_W 4 --visualize --size 0.02985
 ```
 
 Of course you need to chagne the serial numbers according to your sensors. Use `rs-enumerate-devices` from realsense 
 library to find out serial numbers of your sensors.
 
 
-# Next step
+# Point Cloud Registeration
 Okay, calibrations is working but the results after the calibration is not 
 any better. This either means the calibration is actually not working, or 
 the error that I currently see is not bevause of the calibration issues or
@@ -93,3 +93,20 @@ Here are some links to learn more about features from PCL library:
 - https://pcl.readthedocs.io/projects/tutorials/en/latest/fpfh_estimation.html
 
 So lets start with learning about features in 3d point cloud.
+
+PCL library has a very nice diagram, showing the pipeline for the Point Cloud Registeration.
+
+![](https://pcl.readthedocs.io/projects/tutorials/en/latest/_images/block_diagram_single_iteration.jpg)
+
+## Keypoints Estimation/Detection
+
+- [NARF](https://europa.informatik.uni-freiburg.de/files/steder11icra.pdf) or [here](https://www.isprs-ann-photogramm-remote-sens-spatial-inf-sci.net/II-3/57/2014/isprsannals-II-3-57-2014.pdf):
+    > The Normal Aligned Radial Feature (NARF) keypoint detector has two major characteristics: Firstly, NARF
+    extracts keypoints in areas where the direct underlying surface
+    is stable and the neighborhood contains major surface changes.
+    This causes NARF keypoints to be located in the local environment of significant geometric structures and not directly on them.
+    According to the authors this characteristic leads to a more robust point descriptor computation. Secondly, NARF takes object borders into account, which arise from view dependent noncontinuous transitions from the foreground to the background.
+    Thus, the silhouette of an object has a profound influence on the
+    resulting keypoints.
+- [SIFT]()
+- [FAST]()

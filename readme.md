@@ -5,13 +5,25 @@ The main work is now in `myApp/py3dscanner`.
 ![Basic Results](myApp/imgs/first_step.gif)
 
 # Online Courses:
-**Prof. Dr. Wolfram Burgard**:
-- Introduction to Mobile Robotics - SS 2020
-  - http://ais.informatik.uni-freiburg.de/teaching/ss20/robotics/
 
 **Professor Dieter Fox**
 - CSE571: Probabilistic Robotics
   - https://courses.cs.washington.edu/courses/cse571/
+
+
+**Vision Algorithm for Mobile Robotics**
+- http://rpg.ifi.uzh.ch/teaching2020.html
+- https://github.com/yosoufe/VAMR
+
+
+**AirLab Summer School**
+- http://theairlab.org/summer2020/
+
+
+**Prof. Dr. Wolfram Burgard**:
+- Introduction to Mobile Robotics - SS 2020
+  - http://ais.informatik.uni-freiburg.de/teaching/ss20/robotics/
+
 
 **Prof. Dr. Cyrill Stachniss**
 - Mobile Sensing and Robotics I & II
